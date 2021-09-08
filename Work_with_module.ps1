@@ -25,7 +25,9 @@ $OutputEncoding = New-Object -typename System.Text.UTF8Encoding
 
 
 
-Import-Module C:\Zabbix_PSModules_API\PSZabbix-master\PSZabbix.psm1
+Import-Module C:\Zabbix_PSModules_API\PSZabbix\PSZabbix.psm1
+    # $ApiUri = "http://10.42.10.11/api_jsonrpc.php"
+    # $auth = (Get-Credential)
 New-ApiSession -ApiUri http://10.42.10.11/api_jsonrpc.php -auth (Get-Credential)
 
 
@@ -100,6 +102,9 @@ ICMP PING Владивосток, Бородинская, 26/28 <- Владивосток, Енисейская, 23д       
 # Этот кусок текста сохранён в файл JSON.txt в каталоке с модулем. 
 # Нужен для того чтобы потом его можно было подтянуть в объект сразу из файла в формате JSON. Не изъебываясь при этом при набирании текста в таком формате в консоли
 # Подтягивается командой $JSON=Get-Content .\JSON.txt | ConvertFrom-Json
+#
+# Нужные нам JSON запросы забираем с официального Wiki Zabbix 
+# https://www.zabbix.com/documentation/current/manual/api/reference/
 ####################################################################
 
 $parameters+=
@@ -142,3 +147,19 @@ foreach ($ZbxHost in $Hosts) {
 
 
 
+###########################################################################################################################################
+#                                                                                                                                         #
+# Кусок по работе с триггерами.                                                                                                           #
+# Конкретная ситуация когда надо было сделать зависимость триггеров об отсутсвии связи на триггер "отсутсвия дефолтного маршрута"         #
+#                                                                                                                                         #
+# $JSON=Get-Content .\JSON_trigger.get.txt  | ConvertFrom-Json                                                                            #
+#                                                                                                                                         #
+# Наличие selectDependencies в JSON запросе позволяет выдернуть триггеры вместе с зависимостями                                           #
+#                                                                                                                                         #
+###########################################################################################################################################
+
+Get-HostGroup | ? {$_.Name -eq "Gateways\Арсеньев\Жуковского, 5"}
+
+New-JsonrpcRequest -method $JSON.method -params $JSON.params -auth $session.Auth
+Invoke-RestMethod -Uri $session.Uri -Method Post -ContentType "application/json; charset=UTF-8" -Body (New-JsonrpcRequest -method $JSON.method -params $JSON.params -auth $session.Auth)
+$trigger = Invoke-RestMethod -Uri $session.Uri -Method Post -ContentType "application/json; charset=UTF-8" -Body (New-JsonrpcRequest -method $JSON.method -params $JSON.params -auth $session.Auth)

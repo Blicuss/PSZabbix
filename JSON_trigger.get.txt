@@ -1,0 +1,14 @@
+{
+    "jsonrpc": "2.0",
+    "method": "trigger.get",
+    "params": {
+        "groupids": "50",
+        "output": "extend",
+        "selectFunctions": "extend",
+		"selectDependencies": "extend",
+		"selectHosts": "extend",
+		"selectItems": "extend"
+    },
+    "auth": "038e1d7b1735c6a5436ee9eae095879e",
+    "id": 1
+}
